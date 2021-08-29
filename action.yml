@@ -1,0 +1,37 @@
+name: Deploy preview
+description: Deploy preview environments for static apps using GitHub Pages
+
+inputs:
+  branch:
+    description: The branch from where the GitHub Pages are served (defaults to preview-env)
+    required: true
+    default: 'preview-env'
+  folder:
+    description: The folder where the artifacts to publish are (defaults to the project root)
+    required: true
+    default: '.'
+
+runs:
+  using: composite
+  steps:
+    - name: Generate slug
+      id: generate_slug
+      run: echo "##[set-output name=slug;]$(echo ${GITHUB_HEAD_REF#refs/heads/} | sed -r 's/[~\^]+//g' | sed -r 's/[^a-zA-Z0-9]+/-/g' | sed -r 's/^-+\|-+$//g' | tr A-Z a-z)"
+      shell: bash
+    - name: Determine base URL
+      id: determine_base_url
+      run: echo "##[set-output name=base_url;]$(echo $GITHUB_REPOSITORY | sed 's/\//.github.io\//')"
+      shell: bash
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@4.1.1
+      with:
+        branch: ${{ inputs.branch }}
+        folder: ${{ inputs.folder }}
+        target-folder: ${{ steps.generate_slug.outputs.slug }}
+    - name: Publish env
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        header: Preview environment
+        message: |
+          ## Preview environment
+          https://${{ steps.determine_base_url.outputs.base_url }}/${{ steps.generate_slug.outputs.slug }}/
