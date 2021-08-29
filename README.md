@@ -6,9 +6,8 @@ A GitHub action to deploy preview environments for static apps using GitHub Page
 
 This action expects you to checkout and build your static assets. After that, it will run next steps:
 
-* Generate a unique slug from the branch name plus current date. For example, if your branch is `Update-landing-page`, it will generate a slug like `2021-05-08-update-landing-page`.
 * Publish the contents from the folder of your choice into a branch where you should have configured GitHub Pages to be served.
-* Use the slug generated in first step to create a sub-folder with your contents. That way, if your repository is `my-org/my-repo`, you will be able to access the preview env in https://my-org.github.io/my-repo/2021-05-08-update-landing-page
+* Use the branch name to create a sub-folder with your contents. That way, if your repository is `my-org/my-repo`, you will be able to access the preview env in https://my-org.github.io/my-repo/main
 * If you run this action during `pull_request` or `pull_request_target` events: publish a comment after the preview env is ready, with the URL from previous step.
 
 ## Usage
@@ -31,7 +30,7 @@ jobs:
           npm run build
 
       - name: Deploy
-        uses: shlinkio/deploy-preview-action@v1
+        uses: shlinkio/deploy-preview-action@v1.0.1
         with:
           branch: gh-pages # The branch from where the GitHub Pages are served (defaults to preview-env)
           folder: build # The folder where the artifacts to publish are (defaults to the project root)
